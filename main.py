@@ -13,7 +13,7 @@ DATE_DESC = range(1)
 init_db()
 
 # BOT Token
-BOT_API = '7636681178:AAGSPeQ97gfAIEuTkpqqBhV3QRR_KCAZMOU'
+BOT_API =
 
 
 # Starting commands
