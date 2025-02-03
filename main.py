@@ -4,6 +4,10 @@ from telegram.ext import (Application, CommandHandler, ContextTypes, filters, Me
 from datetime import datetime
 from database import (get_summary, add_transaction, list_transactions, init_db, search_transactions, get_total_balance,
                       get_transaction_count, list_monthly_summary)
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # State conversations
 AMOUNT, DESCRIPTION = range(2)
@@ -13,7 +17,7 @@ DATE_DESC = range(1)
 init_db()
 
 # BOT Token
-BOT_API =
+BOT_API = os.getenv("BOT_API")
 
 
 # Starting commands
