@@ -1,4 +1,16 @@
 import sqlite3
+import os
+import psycopg2
+
+DATABASE_URL = os.getenv("DATABASE_URL", "Finance_Bot.db")
+
+if DATABASE_URL.startswith("postgres://"):
+    conn = psycopg2.connect(DATABASE_URL, sslmode="require")
+else:
+    conn = sqlite3.connect(DATABASE_URL)
+
+cursor = conn.cursor()
+
 from datetime import datetime, timezone, timedelta
 DB_FILE = "Finance_Bot.db"
 
