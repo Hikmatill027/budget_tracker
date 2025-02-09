@@ -1,6 +1,6 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CommandHandler, ContextTypes, filters, MessageHandler, ConversationHandler,
-                          CallbackQueryHandler)
+                          CallbackQueryHandler, CallbackContext)
 from datetime import datetime
 from database import (get_summary, add_transaction, list_transactions, init_db, search_transactions, get_total_balance,
                       get_transaction_count, list_monthly_summary)
@@ -22,11 +22,26 @@ BOT_API = os.getenv("BOT_API")
 
 # Starting commands
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.effective_chat.id
     await update.message.reply_text("💰Welcome to Finance Tracker Bot💰. 💰Let's manage your budget.💰")
 
+    # Schedule a job at 9 PM every day
+    context.job_queue.run_daily(
+        send_reminder,
+        time(hour=21, minute=0),
+        chat_id=chat_id,
+        name=str(chat_id)
+    )
 
-# async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#     await update.message.reply_text(f"You said: {update.message.text}")
+
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+     await update.message.reply_text(f"You said: {update.message.text}")
+  
+
+async def send_reminder(context: CallbackContext):
+    """Sends a reminder message at 9 PM every night."""
+    chat_id = context.job.chat_id  # Get chat ID from job
+    await context.bot.send_message(chat_id=chat_id, text="🔔 Have there been any transactions today?")
 
 
 async def add_income(update: Update, context: ContextTypes.DEFAULT_TYPE):
