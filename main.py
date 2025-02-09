@@ -152,17 +152,15 @@ async def pagination(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("search funcition started")
-    if 'step' not in context.user_data:
-        await update.message.reply_text("Enter a description or a date in YYYY-MM-DD format")
-        context.user_data['step'] = 'awaiting query'
-        return
+    await update.message.reply_text("🔍 Enter a description or a date in YYYY-MM-DD format.")
+    
     query = update.message.text.strip()
-    print("I got query")
+
     if not query:
-        await update.message.reply_text("❌ Invalid input. Please provide with proper description or date.")
+        await update.message.reply_text("❌ Invalid input. Please provide a description or a date in YYYY-MM-DD format.")
         return
 
+    # Determine if query is a date
     try:
         query_date = datetime.strptime(query, '%Y-%m-%d').date()
         search_key = query_date.strftime('%Y-%m-%d')
@@ -170,31 +168,27 @@ async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except ValueError:
         search_key = query.lower()
         is_data_query = False
-    print("converting date")
-
-    if not search_key:
-        await update.message.reply_text("❌Invalid input. Please enter a proper date")
-        return
 
     user_id = update.effective_user.id
-    print(f"user id is {user_id}")
+
     try:
         search_data = search_transactions(user_id, search_key, is_data_query)
-        print("No search data")
     except Exception as e:
-        await update.message.reply_text(f"An error occurred during getting search data {e}")
+        await update.message.reply_text(f"⚠️ Error fetching search results: {e}")
         return
 
     if search_data:
-        response = f"Search result for {query}:\n\n"
+        response = f"🔍 **Search results for:** `{query}`\n\n"
         for idx, (t_type, amount, desc, timestamp) in enumerate(search_data, start=1):
-            response += (f"{idx}.💵 {t_type.capitalize()}: {amount:,.0f}\n📝 {desc or 'No description'}\n"
-                         f"📅 {timestamp}\n\n")
+            response += (
+                f"{idx}. 💵 {t_type.capitalize()}: {amount:,.0f} UZS\n"
+                f"📝 {desc or 'No description'}\n"
+                f"📅 {timestamp}\n\n"
+            )
     else:
-        response = f"No data found matching {search_key}"
+        response = f"❌ No transactions found for `{query}`."
 
-    await update.message.reply_text(response)
-    context.user_data.clear()
+    await update.message.reply_text(response, parse_mode="Markdown")
 
 
 async def monthly_summary(update: Update, context: ContextTypes.DEFAULT_TYPE):
